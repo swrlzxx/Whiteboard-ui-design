@@ -800,7 +800,20 @@ class ColorPicker {
         this.panel = document.getElementById('color-picker-panel');
         this.isOpen = false;
         this.currentInput = null;
+        // HSV model
+        this.h = 0; // 0-360
+        this.s = 1; // 0-1
+        this.v = 1; // 0-1
+        // Element refs
+        this.gradientEl = document.getElementById('color-gradient');
+        this.pointerEl = document.getElementById('color-pointer');
+        this.hueEl = document.getElementById('hue-slider');
+        this.hueThumb = document.getElementById('hue-thumb');
+        this.recentContainer = document.getElementById('recent-colors');
+        this.paletteGrid = document.getElementById('palette-grid');
         this.setupEventListeners();
+        this.loadRecents();
+        this.generatePalettes();
     }
 
     setupEventListeners() {
@@ -808,6 +821,7 @@ class ColorPicker {
         document.querySelectorAll('.color-picker-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 this.currentInput = btn.parentElement.querySelector('.color-input');
+                this.setColor(this.currentInput.value);
                 this.show();
             });
         });
@@ -821,30 +835,29 @@ class ColorPicker {
         document.getElementById('g-input').addEventListener('input', () => this.updateFromRGB());
         document.getElementById('b-input').addEventListener('input', () => this.updateFromRGB());
 
-        // Color gradient
-        const gradient = document.getElementById('color-gradient');
-        gradient.addEventListener('mousedown', (e) => this.startColorPicking(e));
+        // Color gradient drag
+        this.gradientEl.addEventListener('mousedown', (e) => this.startColorPicking(e));
+        this.gradientEl.addEventListener('touchstart', (e) => this.startColorPicking(e.touches[0]));
 
-        // Hue slider
-        const hueSlider = document.getElementById('hue-slider');
-        hueSlider.addEventListener('mousedown', (e) => this.startHuePicking(e));
+        // Hue slider drag
+        this.hueEl.addEventListener('mousedown', (e) => this.startHuePicking(e));
+        this.hueEl.addEventListener('touchstart', (e) => this.startHuePicking(e.touches[0]));
 
-        // Recent colors
-        document.querySelectorAll('#recent-colors .color-swatch').forEach(swatch => {
-            swatch.addEventListener('click', (e) => {
-                const color = e.target.style.backgroundColor;
-                this.setColor(this.rgbToHex(color));
-            });
+        // Delegate recent color clicks
+        this.recentContainer.addEventListener('click', (e) => {
+            const swatch = e.target.closest('.color-swatch');
+            if (!swatch) return;
+            const color = swatch.style.backgroundColor;
+            this.setColor(this.rgbToHex(color));
         });
     }
 
     show() {
         this.isOpen = true;
         this.panel.classList.add('visible');
-        
-        if (this.currentInput) {
-            this.setColor(this.currentInput.value);
-        }
+        // Sync UI with current HSV
+        this.updateGradientBackground();
+        this.updatePointers();
     }
 
     hide() {
@@ -852,34 +865,247 @@ class ColorPicker {
         this.panel.classList.remove('visible');
     }
 
+    /* ---------- Core Setters & Conversions ---------- */
     setColor(hex) {
         if (!hex.startsWith('#')) hex = '#' + hex;
-        
-        // Update hex input
-        document.getElementById('hex-input').value = hex;
-        
-        // Update RGB inputs
+        // Convert to HSV for internal state
         const rgb = this.hexToRgb(hex);
+        if (rgb) {
+            const hsv = this.rgbToHsv(rgb);
+            this.h = hsv.h;
+            this.s = hsv.s;
+            this.v = hsv.v;
+        }
+
+        // Update inputs
+        document.getElementById('hex-input').value = hex.toUpperCase();
         if (rgb) {
             document.getElementById('r-input').value = rgb.r;
             document.getElementById('g-input').value = rgb.g;
             document.getElementById('b-input').value = rgb.b;
         }
-        
-        // Update current input
+
+        // UI updates
+        this.updateGradientBackground();
+        this.updatePointers();
+
+        // Update connected field preview + apply
         if (this.currentInput) {
-            this.currentInput.value = hex;
+            this.currentInput.value = hex.toUpperCase();
             const preview = this.currentInput.parentElement.querySelector('.color-preview');
-            if (preview) {
-                preview.style.backgroundColor = hex;
-            }
-            
-            // Apply to selected objects
+            if (preview) preview.style.backgroundColor = hex;
             this.applyColorToSelection(hex);
         }
-        
-        // Add to recent colors
+
+        // Recent colors list
         this.addToRecent(hex);
+    }
+
+    updateFromHex(hex) {
+        if (!/^#?[0-9A-Fa-f]{6}$/.test(hex)) return; // simple validation
+        this.setColor(hex);
+    }
+
+    updateFromRGB() {
+        const r = parseInt(document.getElementById('r-input').value) || 0;
+        const g = parseInt(document.getElementById('g-input').value) || 0;
+        const b = parseInt(document.getElementById('b-input').value) || 0;
+        const hex = this.rgbToHexObj({ r, g, b });
+        this.setColor(hex);
+    }
+
+    /* ---------- Drag Logic ---------- */
+    startColorPicking(e) {
+        const onMove = (ev) => {
+            const client = ev.touches ? ev.touches[0] : ev;
+            this.pickColor(client);
+        };
+        const onEnd = () => {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onEnd);
+            document.removeEventListener('touchmove', onMove);
+            document.removeEventListener('touchend', onEnd);
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onEnd);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onEnd);
+        // Initial pick
+        this.pickColor(e);
+    }
+
+    pickColor(point) {
+        const rect = this.gradientEl.getBoundingClientRect();
+        const xRatio = Math.min(1, Math.max(0, (point.clientX - rect.left) / rect.width));
+        const yRatio = Math.min(1, Math.max(0, (point.clientY - rect.top) / rect.height));
+        this.s = xRatio;
+        this.v = 1 - yRatio; // top is v=1
+        const hex = this.rgbToHexObj(this.hsvToRgb(this.h, this.s, this.v));
+        this.setColor(hex);
+    }
+
+    startHuePicking(e) {
+        const onMove = (ev) => {
+            const client = ev.touches ? ev.touches[0] : ev;
+            this.pickHue(client);
+        };
+        const onEnd = () => {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onEnd);
+            document.removeEventListener('touchmove', onMove);
+            document.removeEventListener('touchend', onEnd);
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onEnd);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onEnd);
+        // initial
+        this.pickHue(e);
+    }
+
+    pickHue(point) {
+        const rect = this.hueEl.getBoundingClientRect();
+        const yRatio = Math.min(1, Math.max(0, (point.clientY - rect.top) / rect.height));
+        this.h = (1 - yRatio) * 360;
+        this.updateGradientBackground();
+        const hex = this.rgbToHexObj(this.hsvToRgb(this.h, this.s, this.v));
+        this.setColor(hex);
+    }
+
+    /* ---------- UI helpers ---------- */
+    updateGradientBackground() {
+        const { r, g, b } = this.hsvToRgb(this.h, 1, 1);
+        this.gradientEl.style.background = `linear-gradient(to right, #ffffff, rgb(${r}, ${g}, ${b}))`;
+    }
+
+    updatePointers() {
+        // Pointer inside gradient
+        this.pointerEl.style.left = `${this.s * 100}%`;
+        this.pointerEl.style.top = `${(1 - this.v) * 100}%`;
+        // Hue thumb
+        const pct = 1 - this.h / 360;
+        this.hueThumb.style.top = `${pct * 100}%`;
+    }
+
+    /* ---------- Recent & Palettes ---------- */
+    addToRecent(color) {
+        // Ensure uppercase hex
+        color = color.toUpperCase();
+        const existingColors = Array.from(this.recentContainer.querySelectorAll('.color-swatch')).map(el => {
+            const bg = el.style.backgroundColor;
+            return bg.startsWith('#') ? bg.toUpperCase() : this.rgbToHex(bg);
+        });
+        let list = [color, ...existingColors.filter(h => h !== color)];
+        list = list.slice(0, 10);
+        this.recentContainer.innerHTML = '';
+        list.forEach(hex => {
+            const swatch = document.createElement('div');
+            swatch.className = 'color-swatch';
+            swatch.style.backgroundColor = hex;
+            this.recentContainer.appendChild(swatch);
+        });
+        this.saveRecents(list);
+    }
+
+    loadRecents() {
+        const saved = JSON.parse(localStorage.getItem('recentColors') || '[]');
+        if (saved.length === 0) return;
+        this.recentContainer.innerHTML = '';
+        saved.forEach(hex => {
+            const swatch = document.createElement('div');
+            swatch.className = 'color-swatch';
+            swatch.style.backgroundColor = hex;
+            this.recentContainer.appendChild(swatch);
+        });
+    }
+
+    saveRecents(arr) {
+        localStorage.setItem('recentColors', JSON.stringify(arr));
+    }
+
+    generatePalettes() {
+        const palettes = [
+            ['#FFCDD2', '#EF9A9A', '#E57373', '#EF5350', '#F44336'],
+            ['#F8BBD0', '#F48FB1', '#F06292', '#EC407A', '#E91E63'],
+            ['#E1BEE7', '#CE93D8', '#BA68C8', '#AB47BC', '#9C27B0'],
+            ['#D1C4E9', '#B39DDB', '#9575CD', '#7E57C2', '#673AB7'],
+            ['#C5CAE9', '#9FA8DA', '#7986CB', '#5C6BC0', '#3F51B5']
+        ];
+        this.paletteGrid.innerHTML = '';
+        palettes.forEach(row => {
+            const rowEl = document.createElement('div');
+            rowEl.style.display = 'flex';
+            rowEl.style.gap = '4px';
+            row.forEach(hex => {
+                const sw = document.createElement('div');
+                sw.className = 'color-swatch';
+                sw.style.backgroundColor = hex;
+                sw.title = hex;
+                sw.addEventListener('click', () => this.setColor(hex));
+                rowEl.appendChild(sw);
+            });
+            this.paletteGrid.appendChild(rowEl);
+        });
+    }
+
+    /* ---------- Color Conversion Utilities ---------- */
+    hsvToRgb(h, s, v) {
+        const c = v * s;
+        const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+        const m = v - c;
+        let r = 0, g = 0, b = 0;
+        if (h >= 0 && h < 60) { r = c; g = x; b = 0; }
+        else if (h >= 60 && h < 120) { r = x; g = c; b = 0; }
+        else if (h >= 120 && h < 180) { r = 0; g = c; b = x; }
+        else if (h >= 180 && h < 240) { r = 0; g = x; b = c; }
+        else if (h >= 240 && h < 300) { r = x; g = 0; b = c; }
+        else { r = c; g = 0; b = x; }
+        r = Math.round((r + m) * 255);
+        g = Math.round((g + m) * 255);
+        b = Math.round((b + m) * 255);
+        return { r, g, b };
+    }
+
+    rgbToHsv({ r, g, b }) {
+        r /= 255; g /= 255; b /= 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        const delta = max - min;
+        let h = 0;
+        if (delta !== 0) {
+            if (max === r) h = 60 * (((g - b) / delta) % 6);
+            else if (max === g) h = 60 * (((b - r) / delta) + 2);
+            else h = 60 * (((r - g) / delta) + 4);
+        }
+        if (h < 0) h += 360;
+        const s = max === 0 ? 0 : delta / max;
+        const v = max;
+        return { h, s, v };
+    }
+
+    rgbToHex(rgbString) {
+        // Existing logic for rgb string
+        return this.rgbToHexObj(this.parseRgbString(rgbString));
+    }
+
+    rgbToHexObj({ r, g, b }) {
+        return '#' + [r, g, b].map(v => {
+            const hex = v.toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+        }).join('').toUpperCase();
+    }
+
+    hexToRgb(hex) {
+        const res = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return res ? {
+            r: parseInt(res[1], 16),
+            g: parseInt(res[2], 16),
+            b: parseInt(res[3], 16)
+        } : null;
+    }
+
+    parseRgbString(str) {
+        const values = str.match(/\d+/g) || [0, 0, 0];
+        return { r: parseInt(values[0]), g: parseInt(values[1]), b: parseInt(values[2]) };
     }
 
     applyColorToSelection(color) {
@@ -890,79 +1116,6 @@ class ColorPicker {
             this.app.canvas.renderAll();
             this.app.saveState();
         }
-    }
-
-    addToRecent(color) {
-        const recents = document.querySelectorAll('#recent-colors .color-swatch');
-        // Shift colors and add new one at the beginning
-        for (let i = recents.length - 1; i > 0; i--) {
-            recents[i].style.backgroundColor = recents[i - 1].style.backgroundColor;
-        }
-        recents[0].style.backgroundColor = color;
-    }
-
-    updateFromHex(hex) {
-        this.setColor(hex);
-    }
-
-    updateFromRGB() {
-        const r = parseInt(document.getElementById('r-input').value) || 0;
-        const g = parseInt(document.getElementById('g-input').value) || 0;
-        const b = parseInt(document.getElementById('b-input').value) || 0;
-        const hex = this.rgbToHex(`rgb(${r}, ${g}, ${b})`);
-        document.getElementById('hex-input').value = hex;
-        this.setColor(hex);
-    }
-
-    startColorPicking(e) {
-        const rect = e.target.getBoundingClientRect();
-        const updateColor = (e) => {
-            const x = (e.clientX - rect.left) / rect.width;
-            const y = (e.clientY - rect.top) / rect.height;
-            // Color picking logic would go here
-        };
-        
-        const stopPicking = () => {
-            document.removeEventListener('mousemove', updateColor);
-            document.removeEventListener('mouseup', stopPicking);
-        };
-        
-        document.addEventListener('mousemove', updateColor);
-        document.addEventListener('mouseup', stopPicking);
-    }
-
-    startHuePicking(e) {
-        const rect = e.target.getBoundingClientRect();
-        const updateHue = (e) => {
-            const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
-            // Hue picking logic would go here
-        };
-        
-        const stopPicking = () => {
-            document.removeEventListener('mousemove', updateHue);
-            document.removeEventListener('mouseup', stopPicking);
-        };
-        
-        document.addEventListener('mousemove', updateHue);
-        document.addEventListener('mouseup', stopPicking);
-    }
-
-    hexToRgb(hex) {
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-        } : null;
-    }
-
-    rgbToHex(rgb) {
-        const values = rgb.match(/\d+/g);
-        if (!values) return '#000000';
-        return '#' + values.map(x => {
-            const hex = parseInt(x).toString(16);
-            return hex.length === 1 ? '0' + hex : hex;
-        }).join('');
     }
 }
 
