@@ -124,6 +124,9 @@ class FigmaClone {
         this.canvas.selection = tool === 'select';
         this.canvas.isDrawingMode = tool === 'pencil';
         
+        // NEW: Update object selectability based on active tool
+        this.updateObjectSelectability(tool === 'select');
+        
         // Update cursor
         this.updateCursor();
         
@@ -137,6 +140,14 @@ class FigmaClone {
             this.canvas.discardActiveObject();
             this.canvas.renderAll();
         }
+    }
+
+    // Helper to enable/disable object selectability
+    updateObjectSelectability(selectable) {
+        this.canvas.getObjects().forEach(obj => {
+            obj.selectable = selectable;
+            obj.evented = selectable; // Prevent hover/click events when not selectable
+        });
     }
 
     updateCursor() {
