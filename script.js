@@ -23,6 +23,7 @@ class FigmaClone {
         this.layers = [];
         this.components = [];
         this.currentLayer = 0;
+        this.guides = [];
         
         // Initialize managers
         this.layerManager = new LayerManager(this);
@@ -76,7 +77,9 @@ class FigmaClone {
                 'selection:updated': this.handleSelectionUpdated.bind(this),
                 'selection:cleared': this.handleSelectionCleared.bind(this),
                 'object:modified': this.handleObjectModified.bind(this),
-                'path:created': this.handlePathCreated.bind(this)
+                'path:created': this.handlePathCreated.bind(this),
+                'object:moving': this.handleObjectMoving.bind(this),
+                'object:scaling': this.handleObjectMoving.bind(this)
             });
 
             resolve();
@@ -695,6 +698,95 @@ class FigmaClone {
             });
         };
         reader.readAsDataURL(file);
+    }
+
+    // Precision helpers -------------------------------------------------
+    handleObjectMoving(e) {
+        const obj = e.target;
+        if (!obj) return;
+        const threshold = this.snap.threshold;
+        // Snap to grid if enabled
+        if (this.grid.enabled) {
+            const gridSize = this.grid.size;
+            const snappedLeft = Math.round(obj.left / gridSize) * gridSize;
+            const snappedTop = Math.round(obj.top / gridSize) * gridSize;
+            if (Math.abs(snappedLeft - obj.left) < threshold) obj.left = snappedLeft;
+            if (Math.abs(snappedTop - obj.top) < threshold) obj.top = snappedTop;
+        } else {
+            // pixel grid (integer values)
+            obj.left = Math.round(obj.left);
+            obj.top = Math.round(obj.top);
+        }
+        // Alignment snapping to other objects
+        this.clearGuides();
+        const objects = this.canvas.getObjects().filter(o => o !== obj && o.type !== 'guide');
+        const guides = [];
+        const objBounds = this._getBounds(obj);
+        objects.forEach(other => {
+            const b = this._getBounds(other);
+            // Vertical align (x)
+            ['left','centerX','right'].forEach(key => {
+                const diff = b[key] - objBounds.left;
+                if (Math.abs(diff) < threshold) {
+                    obj.left += diff;
+                    guides.push({ type:'v', x: b[key] });
+                }
+                const diffCenter = b[key] - objBounds.centerX;
+                if (Math.abs(diffCenter) < threshold) {
+                    obj.left += diffCenter;
+                    guides.push({ type:'v', x: b[key] });
+                }
+            });
+            // Horizontal align (y)
+            ['top','centerY','bottom'].forEach(key => {
+                const diff = b[key] - objBounds.top;
+                if (Math.abs(diff) < threshold) {
+                    obj.top += diff;
+                    guides.push({ type:'h', y: b[key] });
+                }
+                const diffCenter = b[key] - objBounds.centerY;
+                if (Math.abs(diffCenter) < threshold) {
+                    obj.top += diffCenter;
+                    guides.push({ type:'h', y: b[key] });
+                }
+            });
+        });
+        // Draw guides
+        guides.forEach(g => {
+            if (g.type === 'v') {
+                const line = new fabric.Line([g.x, 0, g.x, this.canvas.height], {
+                    stroke: '#0d99ff', strokeDashArray:[4,4], selectable:false, evented:false, type:'guide'
+                });
+                this.canvas.add(line);
+                this.guides.push(line);
+            } else {
+                const line = new fabric.Line([0, g.y, this.canvas.width, g.y], {
+                    stroke: '#0d99ff', strokeDashArray:[4,4], selectable:false, evented:false, type:'guide'
+                });
+                this.canvas.add(line);
+                this.guides.push(line);
+            }
+        });
+    }
+
+    clearGuides() {
+        if (this.guides && this.guides.length) {
+            this.guides.forEach(g => this.canvas.remove(g));
+            this.guides = [];
+            this.canvas.requestRenderAll();
+        }
+    }
+
+    _getBounds(obj) {
+        const bound = obj.getBoundingRect(true, true);
+        return {
+            left: bound.left,
+            top: bound.top,
+            right: bound.left + bound.width,
+            bottom: bound.top + bound.height,
+            centerX: bound.left + bound.width / 2,
+            centerY: bound.top + bound.height / 2
+        };
     }
 
     // Utility methods
