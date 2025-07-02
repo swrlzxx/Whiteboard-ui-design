@@ -164,7 +164,8 @@ class FigmaClone {
             pencil: 'crosshair',
             text: 'text',
             component: 'crosshair',
-            instance: 'crosshair'
+            instance: 'crosshair',
+            button: 'crosshair'
         };
         
         this.canvas.defaultCursor = cursors[this.currentTool] || 'default';
@@ -196,6 +197,9 @@ class FigmaClone {
                 break;
             case 'text':
                 this.createText(pointer);
+                break;
+            case 'button':
+                this.startDrawingButton(pointer);
                 break;
         }
     }
@@ -290,6 +294,39 @@ class FigmaClone {
             type: 'arrow'
         });
         this.canvas.add(this.currentObject);
+    }
+
+    startDrawingButton(pointer) {
+        const rect = new fabric.Rect({
+            left: pointer.x,
+            top: pointer.y,
+            width: 120,
+            height: 40,
+            rx: 6,
+            ry: 6,
+            fill: '#0d99ff',
+            stroke: '#0a6bb3',
+            strokeWidth: 1,
+            selectable: true
+        });
+        const label = new fabric.Textbox('Button', {
+            fontFamily: 'Inter',
+            fontSize: 14,
+            fill: '#ffffff',
+            textAlign: 'center',
+            width: 120,
+            selectable: false,
+            left: pointer.x,
+            top: pointer.y + 12
+        });
+        const group = new fabric.Group([rect, label], {
+            left: pointer.x,
+            top: pointer.y,
+            selectable: true,
+            type: 'button'
+        });
+        this.currentObject = group;
+        this.canvas.add(group);
     }
 
     createText(pointer) {
@@ -1343,6 +1380,9 @@ class ContextMenu {
             case 'send-back':
                 this.sendToBack();
                 break;
+            case 'prototype':
+                this.addPrototype();
+                break;
         }
     }
 
@@ -1381,6 +1421,24 @@ class ContextMenu {
         const activeObject = this.app.canvas.getActiveObject();
         if (activeObject) {
             this.app.canvas.sendToBack(activeObject);
+            this.app.saveState();
+        }
+    }
+
+    addPrototype() {
+        const active = this.app.canvas.getActiveObject();
+        if (!active) return;
+        const frames = this.app.canvas.getObjects().filter(o => o.type === 'frame');
+        if (frames.length === 0) {
+            this.app.showToast('No frames to link to', 'warning');
+            return;
+        }
+        const names = frames.map((f, i) => `${i + 1}: Frame ${i + 1}`).join('\n');
+        const choice = prompt(`Link to which frame?\n${names}`);
+        const index = parseInt(choice) - 1;
+        if (!isNaN(index) && frames[index]) {
+            active.prototypeTo = frames[index].id || frames[index]._id || frames[index];
+            this.app.showToast('Interaction added', 'success');
             this.app.saveState();
         }
     }
@@ -1484,6 +1542,9 @@ class KeyboardManager {
                 case 'escape':
                     this.app.canvas.discardActiveObject();
                     this.app.canvas.renderAll();
+                    break;
+                case 'u':
+                    this.app.setTool('button');
                     break;
             }
         }
