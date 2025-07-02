@@ -1048,3 +1048,56 @@ body {
         margin: 0;
     }
 }
+
+/* Floating Toolbar */
+.floating-toolbar {
+    position: absolute;
+    top: 60px;
+    left: 20px;
+    display: flex;
+    gap: var(--space-1);
+    padding: var(--space-2);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    pointer-events: auto;
+    cursor: grab;
+    z-index: 1100;
+    transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.floating-toolbar:active {
+    cursor: grabbing;
+    box-shadow: var(--shadow-lg);
+    transform: scale(0.98);
+}
+
+/* Docked States */
+.floating-toolbar.docked-left {
+    left: 20px;
+    right: auto;
+    top: 60px;
+    transform: none;
+}
+
+.floating-toolbar.docked-right {
+    right: 20px;
+    left: auto;
+    top: 60px;
+    transform: none;
+}
+
+.floating-toolbar.docked-top {
+    top: 60px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+}
+
+@media (max-width: 768px) {
+    .floating-toolbar {
+        flex-wrap: wrap;
+    }
+}

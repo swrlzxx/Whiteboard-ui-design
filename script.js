@@ -32,6 +32,8 @@ class FigmaClone {
         this.contextMenu = new ContextMenu(this);
         this.keyboardManager = new KeyboardManager(this);
         this.autoSaver = new AutoSaver(this);
+        // Instantiate floating toolbar
+        this.floatingToolbar = new FloatingToolbar(this);
         
         this.init();
     }
@@ -1301,6 +1303,158 @@ class AutoSaver {
         if (this.interval) {
             clearInterval(this.interval);
             this.interval = null;
+        }
+    }
+}
+
+// Floating Toolbar Class
+class FloatingToolbar {
+    constructor(app) {
+        this.app = app;
+        this.toolbar = document.getElementById('floating-toolbar');
+        this.container = document.getElementById('canvas-container') || document.body;
+        this.isDragging = false;
+        this.offset = { x: 0, y: 0 };
+        this.docked = null;
+        this.setupEventListeners();
+        this.loadPosition();
+    }
+
+    setupEventListeners() {
+        // Drag start
+        this.toolbar.addEventListener('mousedown', (e) => {
+            // Prevent dragging when clicking on a button
+            if (e.target.closest('button')) return;
+            this.startDrag(e);
+        });
+        // Touch support
+        this.toolbar.addEventListener('touchstart', (e) => {
+            if (e.target.closest('button')) return;
+            this.startDrag(e.touches[0]);
+        });
+        window.addEventListener('resize', () => this.ensureBounds());
+    }
+
+    startDrag(e) {
+        e.preventDefault();
+        this.isDragging = true;
+        this.offset.x = e.clientX - this.toolbar.offsetLeft;
+        this.offset.y = e.clientY - this.toolbar.offsetTop;
+        const moveHandler = (ev) => this.onDrag(ev);
+        const upHandler = () => this.stopDrag(moveHandler, upHandler);
+        document.addEventListener('mousemove', moveHandler);
+        document.addEventListener('mouseup', upHandler);
+        document.addEventListener('touchmove', moveHandler, { passive: false });
+        document.addEventListener('touchend', upHandler);
+    }
+
+    onDrag(e) {
+        if (!this.isDragging) return;
+        const clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+        const clientY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+        const x = clientX - this.offset.x;
+        const y = clientY - this.offset.y;
+        this.toolbar.style.left = `${x}px`;
+        this.toolbar.style.top = `${y}px`;
+        this.toolbar.style.right = 'auto';
+        this.toolbar.classList.remove('docked-left', 'docked-right', 'docked-top');
+        this.toolbar.style.transform = 'none';
+        this.docked = null;
+    }
+
+    stopDrag(moveHandler, upHandler) {
+        this.isDragging = false;
+        document.removeEventListener('mousemove', moveHandler);
+        document.removeEventListener('mouseup', upHandler);
+        document.removeEventListener('touchmove', moveHandler);
+        document.removeEventListener('touchend', upHandler);
+        this.checkDock();
+        this.savePosition();
+    }
+
+    checkDock() {
+        const toolbarRect = this.toolbar.getBoundingClientRect();
+        const containerRect = this.container.getBoundingClientRect();
+        const threshold = 50; // pixels
+        // Left
+        if (toolbarRect.left - containerRect.left < threshold) {
+            this.toolbar.classList.add('docked-left');
+            this.toolbar.style.left = '20px';
+            this.toolbar.style.top = '60px';
+            this.toolbar.style.right = 'auto';
+            this.toolbar.style.transform = 'none';
+            this.docked = 'left';
+            return;
+        }
+        // Right
+        if (containerRect.right - toolbarRect.right < threshold) {
+            this.toolbar.classList.add('docked-right');
+            this.toolbar.style.right = '20px';
+            this.toolbar.style.left = 'auto';
+            this.toolbar.style.top = '60px';
+            this.toolbar.style.transform = 'none';
+            this.docked = 'right';
+            return;
+        }
+        // Top
+        if (toolbarRect.top - containerRect.top < threshold) {
+            this.toolbar.classList.add('docked-top');
+            this.toolbar.style.top = '60px';
+            this.toolbar.style.left = '50%';
+            this.toolbar.style.right = 'auto';
+            this.toolbar.style.transform = 'translateX(-50%)';
+            this.docked = 'top';
+            return;
+        }
+    }
+
+    ensureBounds() {
+        if (this.docked) return;
+        const toolbarRect = this.toolbar.getBoundingClientRect();
+        const containerRect = this.container.getBoundingClientRect();
+        let left = toolbarRect.left;
+        let top = toolbarRect.top;
+        // Adjust if out of bounds
+        if (toolbarRect.right > containerRect.right) {
+            left = containerRect.right - toolbarRect.width - 20;
+        }
+        if (toolbarRect.left < containerRect.left) {
+            left = containerRect.left + 20;
+        }
+        if (toolbarRect.bottom > containerRect.bottom) {
+            top = containerRect.bottom - toolbarRect.height - 20;
+        }
+        if (toolbarRect.top < containerRect.top) {
+            top = containerRect.top + 20;
+        }
+        this.toolbar.style.left = `${left}px`;
+        this.toolbar.style.top = `${top}px`;
+        this.savePosition();
+    }
+
+    savePosition() {
+        const pos = {
+            left: this.toolbar.style.left,
+            top: this.toolbar.style.top,
+            right: this.toolbar.style.right,
+            docked: this.docked
+        };
+        localStorage.setItem('floatingToolbarPosition', JSON.stringify(pos));
+    }
+
+    loadPosition() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('floatingToolbarPosition'));
+            if (!saved) return;
+            if (saved.docked) {
+                this.toolbar.classList.add(`docked-${saved.docked}`);
+                this.docked = saved.docked;
+            }
+            if (saved.left) this.toolbar.style.left = saved.left;
+            if (saved.top) this.toolbar.style.top = saved.top;
+            if (saved.right) this.toolbar.style.right = saved.right;
+        } catch (e) {
+            console.warn('Failed to load toolbar position');
         }
     }
 }
