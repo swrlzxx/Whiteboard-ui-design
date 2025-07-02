@@ -8,6 +8,7 @@
     
     <!-- External Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -50,20 +51,20 @@
             <div class="header-section header-center">
                 <div class="main-toolbar">
                     <div class="toolbar-group">
-                        <button class="tool-btn active" id="tool-select" data-tool="select" title="Select (V)">
-                            <span class="icon">⌁</span>
+                        <button class="tool-btn active" id="tool-select" data-tool="select" title="Select (V)" data-tooltip="Select (V)">
+                            <i data-feather="mouse-pointer" class="icon"></i>
                         </button>
                         <button class="tool-btn" id="tool-frame" data-tool="frame" title="Frame (F)">
                             <span class="icon">⬚</span>
                         </button>
-                        <button class="tool-btn" id="tool-rectangle" data-tool="rectangle" title="Rectangle (R)">
-                            <span class="icon">▭</span>
+                        <button class="tool-btn" id="tool-rectangle" data-tool="rectangle" title="Rectangle (R)" data-tooltip="Rectangle (R)">
+                            <i data-feather="square" class="icon"></i>
                         </button>
-                        <button class="tool-btn" id="tool-ellipse" data-tool="ellipse" title="Ellipse (O)">
-                            <span class="icon">○</span>
+                        <button class="tool-btn" id="tool-ellipse" data-tool="ellipse" title="Ellipse (O)" data-tooltip="Ellipse (O)">
+                            <i data-feather="circle" class="icon"></i>
                         </button>
-                        <button class="tool-btn" id="tool-line" data-tool="line" title="Line (L)">
-                            <span class="icon">⟋</span>
+                        <button class="tool-btn" id="tool-line" data-tool="line" title="Line (L)" data-tooltip="Line (L)">
+                            <i data-feather="slash" class="icon"></i>
                         </button>
                         <button class="tool-btn" id="tool-arrow" data-tool="arrow" title="Arrow">
                             <span class="icon">→</span>
@@ -430,6 +431,11 @@
     </div>
 
     <!-- Scripts -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.feather) feather.replace();
+        });
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
