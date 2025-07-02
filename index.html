@@ -18,125 +18,227 @@
 <body>
     <!-- Loading Screen -->
     <div id="loading-screen" class="loading-screen">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Loading FigmaClone...</div>
+        <div class="loading-content">
+            <div class="loading-spinner">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                </svg>
+            </div>
+            <div class="loading-text">Loading FigmaClone...</div>
+        </div>
     </div>
 
     <!-- Main Application Layout -->
     <div id="app" class="app">
-        <!-- Top Header -->
-        <header class="app-header">
-            <div class="header-section header-left">
+        <!-- Floating Top Toolbar -->
+        <div class="floating-toolbar top-toolbar" id="top-toolbar">
+            <div class="toolbar-handle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="12" r="1"/>
+                    <circle cx="9" cy="5" r="1"/>
+                    <circle cx="9" cy="19" r="1"/>
+                    <circle cx="15" cy="12" r="1"/>
+                    <circle cx="15" cy="5" r="1"/>
+                    <circle cx="15" cy="19" r="1"/>
+                </svg>
+            </div>
+            
+            <div class="toolbar-section">
                 <div class="logo">
-                    <span class="logo-icon">⬡</span>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon>
+                    </svg>
                     <span class="logo-text">FigmaClone</span>
                 </div>
+                
                 <div class="file-controls">
-                    <button class="btn-ghost" id="new-file" title="New File (Ctrl+N)">
-                        <span class="icon">📄</span>
-                        <span class="text">New</span>
+                    <button class="btn-icon" id="new-file" title="New File (Ctrl+N)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                        </svg>
+                        <span>New</span>
                     </button>
-                    <button class="btn-ghost" id="open-file" title="Open File (Ctrl+O)">
-                        <span class="icon">📂</span>
-                        <span class="text">Open</span>
+                    <button class="btn-icon" id="open-file" title="Open File (Ctrl+O)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2l5 0 2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <span>Open</span>
                     </button>
-                    <button class="btn-ghost" id="save-file" title="Save File (Ctrl+S)">
-                        <span class="icon">💾</span>
-                        <span class="text">Save</span>
+                    <button class="btn-icon" id="save-file" title="Save File (Ctrl+S)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17,21 17,13 7,13 7,21"/>
+                            <polyline points="7,3 7,8 15,8"/>
+                        </svg>
+                        <span>Save</span>
                     </button>
                 </div>
             </div>
             
-            <div class="header-section header-center">
-                <div class="main-toolbar">
-                    <div class="toolbar-group">
-                        <button class="tool-btn active" id="tool-select" data-tool="select" title="Select (V)">
-                            <span class="icon">⌁</span>
-                        </button>
-                        <button class="tool-btn" id="tool-frame" data-tool="frame" title="Frame (F)">
-                            <span class="icon">⬚</span>
-                        </button>
-                        <button class="tool-btn" id="tool-rectangle" data-tool="rectangle" title="Rectangle (R)">
-                            <span class="icon">▭</span>
-                        </button>
-                        <button class="tool-btn" id="tool-ellipse" data-tool="ellipse" title="Ellipse (O)">
-                            <span class="icon">○</span>
-                        </button>
-                        <button class="tool-btn" id="tool-line" data-tool="line" title="Line (L)">
-                            <span class="icon">⟋</span>
-                        </button>
-                        <button class="tool-btn" id="tool-arrow" data-tool="arrow" title="Arrow">
-                            <span class="icon">→</span>
-                        </button>
-                    </div>
-                    
-                    <div class="toolbar-separator"></div>
-                    
-                    <div class="toolbar-group">
-                        <button class="tool-btn" id="tool-pen" data-tool="pen" title="Pen (P)">
-                            <span class="icon">✎</span>
-                        </button>
-                        <button class="tool-btn" id="tool-pencil" data-tool="pencil" title="Pencil (B)">
-                            <span class="icon">✏</span>
-                        </button>
-                        <button class="tool-btn" id="tool-text" data-tool="text" title="Text (T)">
-                            <span class="icon">T</span>
-                        </button>
-                    </div>
-                    
-                    <div class="toolbar-separator"></div>
-                    
-                    <div class="toolbar-group">
-                        <button class="tool-btn" id="tool-component" data-tool="component" title="Component">
-                            <span class="icon">⧈</span>
-                        </button>
-                        <button class="tool-btn" id="tool-instance" data-tool="instance" title="Instance">
-                            <span class="icon">⧉</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="header-section header-right">
+            <div class="toolbar-section">
                 <div class="view-controls">
-                    <button class="btn-ghost" id="zoom-out" title="Zoom Out (-)">
-                        <span class="icon">🔍⁻</span>
+                    <button class="btn-icon" id="zoom-out" title="Zoom Out (-)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="M21 21l-4.35-4.35"/>
+                            <line x1="8" y1="11" x2="14" y2="11"/>
+                        </svg>
                     </button>
                     <div class="zoom-display" id="zoom-display">100%</div>
-                    <button class="btn-ghost" id="zoom-in" title="Zoom In (+)">
-                        <span class="icon">🔍⁺</span>
+                    <button class="btn-icon" id="zoom-in" title="Zoom In (+)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="M21 21l-4.35-4.35"/>
+                            <line x1="11" y1="8" x2="11" y2="14"/>
+                            <line x1="8" y1="11" x2="14" y2="11"/>
+                        </svg>
                     </button>
                 </div>
+                
                 <div class="action-controls">
-                    <button class="btn-ghost" id="undo" title="Undo (Ctrl+Z)">
-                        <span class="icon">↶</span>
+                    <button class="btn-icon" id="undo" title="Undo (Ctrl+Z)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 7v6h6"/>
+                            <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
+                        </svg>
                     </button>
-                    <button class="btn-ghost" id="redo" title="Redo (Ctrl+Y)">
-                        <span class="icon">↷</span>
+                    <button class="btn-icon" id="redo" title="Redo (Ctrl+Y)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 7v6h-6"/>
+                            <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/>
+                        </svg>
                     </button>
                     <button class="btn-primary" id="share-btn">
-                        <span class="icon">⤴</span>
-                        <span class="text">Share</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                            <polyline points="16,6 12,2 8,6"/>
+                            <line x1="12" y1="2" x2="12" y2="15"/>
+                        </svg>
+                        <span>Share</span>
                     </button>
                 </div>
             </div>
-        </header>
+        </div>
+
+        <!-- Floating Tools Toolbar -->
+        <div class="floating-toolbar tools-toolbar" id="tools-toolbar">
+            <div class="toolbar-handle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="12" r="1"/>
+                    <circle cx="9" cy="5" r="1"/>
+                    <circle cx="9" cy="19" r="1"/>
+                    <circle cx="15" cy="12" r="1"/>
+                    <circle cx="15" cy="5" r="1"/>
+                    <circle cx="15" cy="19" r="1"/>
+                </svg>
+            </div>
+            
+            <div class="toolbar-content">
+                <div class="tool-group">
+                    <button class="tool-btn active" id="tool-select" data-tool="select" title="Select (V)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+                        </svg>
+                    </button>
+                    <button class="tool-btn" id="tool-frame" data-tool="frame" title="Frame (F)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke-dasharray="4,4"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="tool-separator"></div>
+                
+                <div class="tool-group">
+                    <button class="tool-btn" id="tool-rectangle" data-tool="rectangle" title="Rectangle (R)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        </svg>
+                    </button>
+                    <button class="tool-btn" id="tool-ellipse" data-tool="ellipse" title="Ellipse (O)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="9"/>
+                        </svg>
+                    </button>
+                    <button class="tool-btn" id="tool-line" data-tool="line" title="Line (L)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="7" y1="17" x2="17" y2="7"/>
+                        </svg>
+                    </button>
+                    <button class="tool-btn" id="tool-arrow" data-tool="arrow" title="Arrow">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="7" y1="17" x2="17" y2="7"/>
+                            <polyline points="7,7 17,7 17,17"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="tool-separator"></div>
+                
+                <div class="tool-group">
+                    <button class="tool-btn" id="tool-pen" data-tool="pen" title="Pen (P)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+                            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+                            <path d="M2 2l7.586 7.586"/>
+                            <circle cx="11" cy="11" r="2"/>
+                        </svg>
+                    </button>
+                    <button class="tool-btn" id="tool-pencil" data-tool="pencil" title="Pencil (B)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                        </svg>
+                    </button>
+                    <button class="tool-btn" id="tool-text" data-tool="text" title="Text (T)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="4,7 4,4 20,4 20,7"/>
+                            <line x1="9" y1="20" x2="15" y2="20"/>
+                            <line x1="12" y1="4" x2="12" y2="20"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <!-- Main Content Area -->
         <main class="app-main">
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+            </button>
+
             <!-- Left Sidebar -->
             <aside class="sidebar sidebar-left" id="left-sidebar">
                 <div class="sidebar-header">
                     <h3>Layers</h3>
                     <button class="btn-icon" id="add-layer" title="Add Layer">
-                        <span class="icon">➕</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
                     </button>
                 </div>
                 <div class="layers-panel" id="layers-panel">
                     <div class="layer-item active" data-layer="0">
-                        <div class="layer-icon">👁</div>
+                        <div class="layer-visibility">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </div>
                         <div class="layer-name">Canvas</div>
-                        <div class="layer-lock">🔓</div>
+                        <div class="layer-lock">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </div>
                     </div>
                 </div>
                 
@@ -144,7 +246,11 @@
                     <div class="sidebar-header">
                         <h3>Components</h3>
                         <button class="btn-icon" id="add-component" title="Create Component">
-                            <span class="icon">⧈</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/>
+                                <line x1="12" y1="8" x2="12" y2="16"/>
+                                <line x1="8" y1="12" x2="16" y2="12"/>
+                            </svg>
                         </button>
                     </div>
                     <div class="components-panel" id="components-panel">
@@ -160,15 +266,31 @@
                 <div class="canvas-header">
                     <div class="breadcrumb">
                         <span class="breadcrumb-item">Untitled</span>
-                        <span class="breadcrumb-separator">></span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9,18 15,12 9,6"/>
+                        </svg>
                         <span class="breadcrumb-item active">Page 1</span>
                     </div>
                     <div class="canvas-controls">
-                        <button class="btn-ghost" id="toggle-grid" title="Toggle Grid (Ctrl+')">
-                            <span class="icon">⊞</span>
+                        <button class="btn-icon" id="toggle-grid" title="Toggle Grid (Ctrl+')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="6" height="6"/>
+                                <rect x="15" y="3" width="6" height="6"/>
+                                <rect x="3" y="15" width="6" height="6"/>
+                                <rect x="15" y="15" width="6" height="6"/>
+                            </svg>
                         </button>
-                        <button class="btn-ghost" id="toggle-rulers" title="Toggle Rulers (Shift+R)">
-                            <span class="icon">📏</span>
+                        <button class="btn-icon" id="toggle-rulers" title="Toggle Rulers (Shift+R)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="2" width="20" height="4"/>
+                                <rect x="2" y="2" width="4" height="20"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="12" y1="2" x2="12" y2="6"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="2" y1="8" x2="6" y2="8"/>
+                                <line x1="2" y1="12" x2="6" y2="12"/>
+                                <line x1="2" y1="16" x2="6" y2="16"/>
+                            </svg>
                         </button>
                     </div>
                 </div>
@@ -176,11 +298,14 @@
                 <div class="canvas-container" id="canvas-container">
                     <canvas id="main-canvas"></canvas>
                     <div class="grid-overlay" id="grid-overlay"></div>
+                    <div class="pixel-grid" id="pixel-grid"></div>
                     <div class="rulers" id="rulers">
                         <div class="ruler ruler-horizontal"></div>
                         <div class="ruler ruler-vertical"></div>
                     </div>
+                    <div class="guides-overlay" id="guides-overlay"></div>
                     <div class="selection-overlay" id="selection-overlay"></div>
+                    <div class="snap-guides" id="snap-guides"></div>
                 </div>
             </div>
 
@@ -189,6 +314,12 @@
                 <div class="properties-panel">
                     <div class="sidebar-header">
                         <h3>Properties</h3>
+                        <button class="btn-icon" id="panel-settings">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/>
+                            </svg>
+                        </button>
                     </div>
                     
                     <!-- Design Properties -->
@@ -198,29 +329,34 @@
                             <div class="property-row">
                                 <div class="input-group">
                                     <label>X</label>
-                                    <input type="number" id="prop-x" class="property-input" placeholder="0">
+                                    <input type="number" id="prop-x" class="property-input" placeholder="0" step="0.1">
                                 </div>
                                 <div class="input-group">
                                     <label>Y</label>
-                                    <input type="number" id="prop-y" class="property-input" placeholder="0">
+                                    <input type="number" id="prop-y" class="property-input" placeholder="0" step="0.1">
                                 </div>
                             </div>
                         </div>
                         
                         <div class="property-group">
-                            <label class="property-label">Size</label>
+                            <div class="property-row">
+                                <label class="property-label">Size</label>
+                                <button class="constraint-btn" id="aspect-ratio-lock" title="Lock Aspect Ratio">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                                        <rect x="6" y="11" width="12" height="9" rx="2" ry="2"/>
+                                    </svg>
+                                </button>
+                            </div>
                             <div class="property-row">
                                 <div class="input-group">
                                     <label>W</label>
-                                    <input type="number" id="prop-width" class="property-input" placeholder="100">
+                                    <input type="number" id="prop-width" class="property-input" placeholder="100" step="0.1">
                                 </div>
                                 <div class="input-group">
                                     <label>H</label>
-                                    <input type="number" id="prop-height" class="property-input" placeholder="100">
+                                    <input type="number" id="prop-height" class="property-input" placeholder="100" step="0.1">
                                 </div>
-                                <button class="constraint-btn" id="aspect-ratio-lock" title="Lock Aspect Ratio">
-                                    <span class="icon">🔗</span>
-                                </button>
                             </div>
                         </div>
                         
@@ -235,7 +371,7 @@
                         <div class="property-group">
                             <label class="property-label">Corner Radius</label>
                             <div class="property-row">
-                                <input type="number" id="prop-radius" class="property-input" placeholder="0" min="0">
+                                <input type="number" id="prop-radius" class="property-input" placeholder="0" min="0" step="0.1">
                                 <span class="unit">px</span>
                             </div>
                         </div>
@@ -246,15 +382,20 @@
                         <div class="section-header">
                             <label class="property-label">Fill</label>
                             <button class="btn-icon" id="add-fill" title="Add Fill">
-                                <span class="icon">➕</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"/>
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                </svg>
                             </button>
                         </div>
                         <div class="color-controls" id="fill-controls">
                             <div class="color-item">
-                                <div class="color-preview" id="fill-color-preview" style="background: #000;"></div>
-                                <input type="text" id="fill-color-input" class="color-input" value="#000000">
+                                <div class="color-preview" id="fill-color-preview" style="background: #3b82f6;"></div>
+                                <input type="text" id="fill-color-input" class="color-input" value="#3b82f6">
                                 <button class="color-picker-btn" id="fill-color-picker">
-                                    <span class="icon">🎨</span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                                    </svg>
                                 </button>
                             </div>
                         </div>
@@ -265,15 +406,20 @@
                         <div class="section-header">
                             <label class="property-label">Stroke</label>
                             <button class="btn-icon" id="add-stroke" title="Add Stroke">
-                                <span class="icon">➕</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"/>
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                </svg>
                             </button>
                         </div>
                         <div class="color-controls" id="stroke-controls">
                             <div class="color-item">
-                                <div class="color-preview" id="stroke-color-preview" style="background: #000;"></div>
-                                <input type="text" id="stroke-color-input" class="color-input" value="#000000">
+                                <div class="color-preview" id="stroke-color-preview" style="background: #6b7280;"></div>
+                                <input type="text" id="stroke-color-input" class="color-input" value="#6b7280">
                                 <button class="color-picker-btn" id="stroke-color-picker">
-                                    <span class="icon">🎨</span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                                    </svg>
                                 </button>
                                 <div class="stroke-width-control">
                                     <label>Width</label>
@@ -288,7 +434,10 @@
                         <div class="section-header">
                             <label class="property-label">Effects</label>
                             <button class="btn-icon" id="add-effect" title="Add Effect">
-                                <span class="icon">➕</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"/>
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                </svg>
                             </button>
                         </div>
                         <div class="effects-controls" id="effects-controls">
@@ -297,64 +446,90 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Prototyping Section -->
+                    <div class="property-section">
+                        <div class="section-header">
+                            <label class="property-label">Prototype</label>
+                            <button class="btn-icon" id="add-interaction" title="Add Interaction">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="prototype-controls" id="prototype-controls">
+                            <div class="empty-state">
+                                <span>No interactions</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </aside>
         </main>
 
-        <!-- Floating Panels -->
-        <div class="floating-panels">
-            <!-- Color Picker Panel -->
-            <div class="floating-panel color-picker-panel" id="color-picker-panel">
-                <div class="panel-header">
-                    <h4>Color Picker</h4>
-                    <button class="btn-close" id="close-color-picker">
-                        <span class="icon">✕</span>
-                    </button>
+        <!-- Custom Color Picker Panel -->
+        <div class="floating-panel color-picker-panel" id="color-picker-panel">
+            <div class="panel-header">
+                <h4>Color Picker</h4>
+                <button class="btn-close" id="close-color-picker">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="panel-content">
+                <div class="color-picker-area">
+                    <div class="color-gradient" id="color-gradient">
+                        <div class="color-pointer" id="color-pointer"></div>
+                    </div>
+                    <div class="hue-slider" id="hue-slider">
+                        <div class="hue-thumb" id="hue-thumb"></div>
+                    </div>
+                    <div class="alpha-slider" id="alpha-slider">
+                        <div class="alpha-thumb" id="alpha-thumb"></div>
+                    </div>
                 </div>
-                <div class="panel-content">
-                    <div class="color-picker-area">
-                        <div class="color-gradient" id="color-gradient">
-                            <div class="color-pointer" id="color-pointer"></div>
-                        </div>
-                        <div class="hue-slider" id="hue-slider">
-                            <div class="hue-thumb" id="hue-thumb"></div>
-                        </div>
+                <div class="color-inputs">
+                    <div class="input-group">
+                        <label>Hex</label>
+                        <input type="text" id="hex-input" class="color-text-input" value="#3b82f6">
                     </div>
-                    <div class="color-inputs">
+                    <div class="input-row">
                         <div class="input-group">
-                            <label>Hex</label>
-                            <input type="text" id="hex-input" class="color-text-input" value="#000000">
+                            <label>R</label>
+                            <input type="number" id="r-input" class="color-number-input" min="0" max="255" value="59">
                         </div>
-                        <div class="input-row">
-                            <div class="input-group">
-                                <label>R</label>
-                                <input type="number" id="r-input" class="color-number-input" min="0" max="255" value="0">
-                            </div>
-                            <div class="input-group">
-                                <label>G</label>
-                                <input type="number" id="g-input" class="color-number-input" min="0" max="255" value="0">
-                            </div>
-                            <div class="input-group">
-                                <label>B</label>
-                                <input type="number" id="b-input" class="color-number-input" min="0" max="255" value="0">
-                            </div>
+                        <div class="input-group">
+                            <label>G</label>
+                            <input type="number" id="g-input" class="color-number-input" min="0" max="255" value="130">
+                        </div>
+                        <div class="input-group">
+                            <label>B</label>
+                            <input type="number" id="b-input" class="color-number-input" min="0" max="255" value="246">
+                        </div>
+                        <div class="input-group">
+                            <label>A</label>
+                            <input type="number" id="a-input" class="color-number-input" min="0" max="100" value="100">
                         </div>
                     </div>
-                    <div class="recent-colors">
-                        <label>Recent Colors</label>
-                        <div class="color-swatches" id="recent-colors">
-                            <div class="color-swatch" style="background: #000;"></div>
-                            <div class="color-swatch" style="background: #fff;"></div>
-                            <div class="color-swatch" style="background: #f00;"></div>
-                            <div class="color-swatch" style="background: #0f0;"></div>
-                            <div class="color-swatch" style="background: #00f;"></div>
-                        </div>
+                </div>
+                <div class="recent-colors">
+                    <label>Recent Colors</label>
+                    <div class="color-swatches" id="recent-colors">
+                        <!-- Recent colors will be populated by JS -->
                     </div>
-                    <div class="color-palettes">
-                        <label>Color Palettes</label>
-                        <div class="palette-grid" id="palette-grid">
-                            <!-- Palettes will be populated by JS -->
-                        </div>
+                </div>
+                <div class="color-palettes">
+                    <label>Color Palettes</label>
+                    <div class="palette-tabs" id="palette-tabs">
+                        <button class="palette-tab active" data-palette="material">Material</button>
+                        <button class="palette-tab" data-palette="tailwind">Tailwind</button>
+                        <button class="palette-tab" data-palette="custom">Custom</button>
+                    </div>
+                    <div class="palette-grid" id="palette-grid">
+                        <!-- Palettes will be populated by JS -->
                     </div>
                 </div>
             </div>
@@ -363,33 +538,53 @@
         <!-- Context Menu -->
         <div class="context-menu" id="context-menu">
             <div class="menu-item" data-action="copy">
-                <span class="icon">📋</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
                 <span class="text">Copy</span>
                 <span class="shortcut">Ctrl+C</span>
             </div>
             <div class="menu-item" data-action="paste">
-                <span class="icon">📄</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                </svg>
                 <span class="text">Paste</span>
                 <span class="shortcut">Ctrl+V</span>
             </div>
             <div class="menu-separator"></div>
             <div class="menu-item" data-action="duplicate">
-                <span class="icon">⧉</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
                 <span class="text">Duplicate</span>
                 <span class="shortcut">Ctrl+D</span>
             </div>
             <div class="menu-item" data-action="delete">
-                <span class="icon">🗑</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3,6 5,6 21,6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
                 <span class="text">Delete</span>
                 <span class="shortcut">Del</span>
             </div>
             <div class="menu-separator"></div>
             <div class="menu-item" data-action="bring-front">
-                <span class="icon">⬆</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M7 13l3-3 3 3m-3-3v8"/>
+                    <rect x="3" y="3" width="18" height="8" rx="2"/>
+                </svg>
                 <span class="text">Bring to Front</span>
             </div>
             <div class="menu-item" data-action="send-back">
-                <span class="icon">⬇</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 11l-3 3-3-3m3 3V5"/>
+                    <rect x="3" y="13" width="18" height="8" rx="2"/>
+                </svg>
                 <span class="text">Send to Back</span>
             </div>
         </div>
@@ -399,6 +594,7 @@
 
         <!-- Hidden File Input -->
         <input type="file" id="file-input" accept=".json,.fig" style="display: none;">
+        <input type="file" id="image-input" accept="image/*" multiple style="display: none;">
     </div>
 
     <!-- Scripts -->
