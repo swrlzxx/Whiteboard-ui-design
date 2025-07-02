@@ -785,11 +785,17 @@ class LayerManager {
     }
 
     updateLayerSelection() {
-        // Update layer panel based on selection
+        const activeObj = this.app.canvas.getActiveObject();
+        if (activeObj) {
+            const layerId = activeObj.layerId !== undefined ? activeObj.layerId : this.app.currentLayer;
+            this.app.currentLayer = layerId;
+        }
+        // Re-render to reflect active layer highlight
+        this.renderLayers();
     }
 
     clearSelection() {
-        // Clear layer selection
+        this.renderLayers();
     }
 }
 
@@ -1237,6 +1243,37 @@ class SelectionManager {
         }
     }
 
+    // Group selected objects into a single fabric.Group
+    groupSelection() {
+        const active = this.app.canvas.getActiveObject();
+        if (!active || active.type !== 'activeSelection') return;
+        const group = active.toGroup();
+        group.layerId = this.app.currentLayer;
+        this.app.layerManager.addObjectToLayer(group, this.app.currentLayer);
+        this.app.canvas.discardActiveObject();
+        this.app.canvas.setActiveObject(group);
+        this.app.canvas.requestRenderAll();
+        this.app.saveState();
+    }
+
+    // Ungroup a selected fabric.Group back to separate objects
+    ungroupSelection() {
+        const active = this.app.canvas.getActiveObject();
+        if (!active || active.type !== 'group') return;
+        const layerId = active.layerId;
+        active.toActiveSelection();
+        this.app.canvas.remove(active);
+        // Remove group from layer list
+        if (layerId !== undefined) {
+            const layer = this.app.layers[layerId];
+            if (layer) {
+                layer.objects = layer.objects.filter(id => id !== active.id && id !== active);
+            }
+        }
+        this.app.canvas.requestRenderAll();
+        this.app.saveState();
+    }
+
     deleteSelection() {
         const activeObjects = this.app.canvas.getActiveObjects();
         activeObjects.forEach(obj => this.app.canvas.remove(obj));
@@ -1290,6 +1327,12 @@ class ContextMenu {
                 break;
             case 'duplicate':
                 this.app.selectionManager.duplicateSelection();
+                break;
+            case 'group':
+                this.app.selectionManager.groupSelection();
+                break;
+            case 'ungroup':
+                this.app.selectionManager.ungroupSelection();
                 break;
             case 'delete':
                 this.app.selectionManager.deleteSelection();
@@ -1398,6 +1441,14 @@ class KeyboardManager {
                 case 'd':
                     e.preventDefault();
                     this.app.selectionManager.duplicateSelection();
+                    break;
+                case 'g':
+                    e.preventDefault();
+                    if (e.shiftKey) {
+                        this.app.selectionManager.ungroupSelection();
+                    } else {
+                        this.app.selectionManager.groupSelection();
+                    }
                     break;
             }
         } else {
